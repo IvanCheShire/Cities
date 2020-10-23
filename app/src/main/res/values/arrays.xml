@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="cities">
+    <string-array name="descriptions">
         <item>Москва</item>
         <item>Санкт-Петербург</item>
         <item>Екатеринбург</item>
     </string-array>
 
-    <integer-array name="pics_imgs">
+    <array name="pictures">
         <item>@drawable/msk</item>
         <item>@drawable/spb</item>
         <item>@drawable/ebrg</item>
-    </integer-array>
+    </array>
 </resources>

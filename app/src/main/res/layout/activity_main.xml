@@ -6,12 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent" android:layout_height="match_parent">
-        <fragment android:name="ru.geekbrains.cities.CitiesFragment"
-            android:id="@+id/cities"
-            android:layout_width="match_parent" android:layout_height="match_parent" />
-    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>
