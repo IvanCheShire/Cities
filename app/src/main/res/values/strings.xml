@@ -1,15 +1,10 @@
 
 <resources>
-    <string name="app_name" translatable="false">Coordinator</string>
-    <string name="action_settings" translatable="false">Установки</string>
-    <string name="params" translatable="false">Параметры</string>
-    <string name="preferences" translatable="false">Настройки</string>
-    <string name="text_content" translatable="false">В 2014 году на конференции был представлен новый подход к дизайну приложений.
-Это попытка сделать единообразный интерфейс для всех приложений Google,
-неважно где они работают на телефоне, планшете или компьютере.
-А также для всех Андроид приложений. Данный стиль основан на размещении плоской бумаги на экране.
-Бумага тонкая, плоская, но расположенная в трехмерном пространстве, с тенями, с движением.
-Такую бумагу называют квантумной, или цифровой. Если происходит анимация,
-то она и показывает пользователю, что происходит. Однако чрезмерная анимация не нужна,
-никому не интересно ждать пару секунд, пока окно с сообщением налетается по экрану.</string>
+    <string name="app_name">Weather In Moscow</string>
+    <string name="city">Город</string>
+    <string name="temperature">Температура</string>
+    <string name="pressure">Давление</string>
+    <string name="humidity">Влажность</string>
+    <string name="wind_speed">Скорость ветра</string>
+    <string name="refresh">Обновить</string>
 </resources>

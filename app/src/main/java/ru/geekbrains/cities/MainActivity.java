@@ -7,95 +7,109 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-public class MainActivity extends AppCompatActivity {
-    private Toolbar toolbar;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.stream.Collectors;
 
+import javax.net.ssl.HttpsURLConnection;
+
+public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "WEATHER";
+    private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?lat=55.75&lon=37.62&appid=";
+    private static final String WEATHER_API_KEY = "YOUR_API_KEY";
+
+    private EditText city;
+    private EditText temperature;
+    private EditText pressure;
+    private EditText humidity;
+    private EditText windSpeed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        TextView content = findViewById(R.id.content);
-        content.setText(R.string.text_content);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        SocSource sourceData = new SocSource(getResources());
-        initRecyclerView(sourceData.build());
-
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        init();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    private void init() {
+        city = findViewById(R.id.textCity);
+        temperature = findViewById(R.id.textTemprature);
+        pressure = findViewById(R.id.textPressure);
+        humidity = findViewById(R.id.textHumidity);
+        windSpeed = findViewById(R.id.textWindspeed);
+        Button refresh = findViewById(R.id.refresh);
+        refresh.setOnClickListener(clickListener);
+    }
 
-        int id = item.getItemId();
+    View.OnClickListener clickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            try {
+                final URL uri = new URL(WEATHER_URL + WEATHER_API_KEY);
+                final Handler handler = new Handler();
+                new Thread(new Runnable() {
+                    public void run() {
+                        HttpsURLConnection urlConnection = null;
+                        try {
+                            urlConnection = (HttpsURLConnection) uri.openConnection();
+                            urlConnection.setRequestMethod("GET");
+                            urlConnection.setReadTimeout(10000);
+                            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                            String result = getLines(in);
 
-        switch (id){
-            case R.id.action_settings:
-                Snackbar.make(toolbar, "Вы выбрали пункт меню установки", Snackbar.LENGTH_LONG)
-                        .setAction("Кнопка", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Toast.makeText(MainActivity.this.getApplicationContext(), "Кнопка в Snackbar нажата", Toast.LENGTH_LONG).show();
+                            Gson gson = new Gson();
+                            final WeatherRequest weatherRequest = gson.fromJson(result, WeatherRequest.class);
+                            // Возвращаемся к основному потоку
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    displayWeather(weatherRequest);
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(TAG, "Fail connection", e);
+                            e.printStackTrace();
+                        } finally {
+                            if (null != urlConnection) {
+                                urlConnection.disconnect();
                             }
-                        }).show();
-                return true;
-            case R.id.action_preferences:
-                Snackbar.make(toolbar, "Вы выбрали пункт меню настройки", Snackbar.LENGTH_LONG).show();
-                return true;
-            case R.id.action_params:
-                Snackbar.make(toolbar, "Вы выбрали пункт меню параметры", Snackbar.LENGTH_LONG).show();
-                return true;
+                        }
+                    }
+                }).start();
+            } catch (MalformedURLException e) {
+                Log.e(TAG, "Fail URI", e);
+                e.printStackTrace();
+            }
         }
 
-        return super.onOptionsItemSelected(item);
-    }
+        private String getLines(
+                BufferedReader in) {
+            return in.lines().collect(Collectors.joining("\n"));
+        }
+
+        private void displayWeather(WeatherRequest weatherRequest) {
+            city.setText(weatherRequest.getName());
+            temperature.setText(String.format("%f2", weatherRequest.getMain().getTemp()));
+            pressure.setText(String.format("%d", weatherRequest.getMain().getPressure()));
+            humidity.setText(String.format("%d", weatherRequest.getMain().getHumidity()));
+            windSpeed.setText(String.format("%d", weatherRequest.getWind().getSpeed()));
+        }
+    };
 }
 
 
-        private void initRecyclerView(SocSource sourceData){
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-
-
-        recyclerView.setHasFixedSize(true);
-
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-
-        SocnetAdapter adapter = new SocnetAdapter(sourceData);
-        recyclerView.setAdapter(adapter);
-        adapter.SetOnItemClickListener(new SocnetAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Toast.makeText(MainActivity.this, String.format("Позиция - %d", position), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-
-    }
-}
